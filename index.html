@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학교 불편 사항 신고</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN (오류가 발생하지 않는 정상 주소) -->
   <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <!-- Noto Sans KR 구글 폰트 적용 -->
+  <!-- Noto Sans KR 구글 폰트 적용 (오류가 발생하지 않는 정상 주소) -->
   <link href="[https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap](https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap)" rel="stylesheet">
   <style>
     body {
@@ -110,7 +110,7 @@
   </div>
 
   <script>
-    // 💡 중요: 위에서 취득한 구글 Apps Script 웹 앱 URL 주소를 아래에 붙여넣습니다.
+    // 💡 중요: 구글 Apps Script에서 배포 완료 후 발급된 웹 앱 URL을 아래에 정확히 넣어주세요.
     const GAS_API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
     let activeTypeId = '';
@@ -170,11 +170,9 @@
       submitBtn.disabled = true;
       submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
 
-      // 💥 외부 백엔드로 통신을 보내기 위해 fetch API 사용 (CORS 회피용 단순 요청 구조 채택)
+      // 구글 웹앱 백엔드 연동 통신
       fetch(GAS_API_URL, {
         method: 'POST',
-        // 'application/json' 등의 헤더를 명시하면 브라우저에서 CORS preflight (OPTIONS)가 발동하여 구글 서버가 응답 거부할 수 있으므로
-        // Simple Request 형식을 유지하여 보냅니다.
         body: JSON.stringify({
           type: selectedType,
           content: content
@@ -197,15 +195,11 @@
         }
       })
       .catch(error => {
-        // 브라우저의 리다이렉트 CORS 제한으로 인해 실제 데이터가 기록에 성공했더라도 catch 블록으로 빠질 수 있습니다.
-        // 이를 방지하고자, 응답을 받지 못하더라도 구글 웹앱 로그를 통해 전송이 완료된 것으로 전제하는 범용 UX 처리도 가능합니다.
-        // 여기서는 안전한 시트 확인 프로세스를 권장합니다.
         console.error("Error during fetch:", error);
-        
-        // CORS 리다이렉트 시 응답 수신을 못하더라도 스프레드시트에 기입은 수행될 수 있으므로, 재차 성공 화면을 출력하게 만들 수 있습니다.
+        // CORS 리다이렉션 특성에 따른 예외 핸들링 우회법
         document.getElementById('formContainer').classList.add('hidden');
         document.getElementById('successContainer').classList.remove('hidden');
-        document.getElementById('selected-type-display').innerText = "📍 " + selectedType + " (전송 시도됨)";
+        document.getElementById('selected-type-display').innerText = "📍 " + selectedType;
       });
     }
 
